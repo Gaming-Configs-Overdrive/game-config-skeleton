@@ -1,0 +1,120 @@
+name: Linting
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  lint-js:
+    name: Lint JavaScript Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Check for JavaScript Files
+        id: check-js
+        run: |
+          if [ -z "$(find . -name '*.js')" ]; then
+            echo "no-js=true" >> $GITHUB_OUTPUT
+          else
+            echo "no-js=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Prettier
+        if: steps.check-js.outputs.no-js == 'false'
+        run: yarn prettier --check '**/*.js'
+
+  lint-yaml:
+    name: Lint YAML/YML Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check for YAML Files
+        id: check-yaml
+        run: |
+          if [ -z "$(find . -name '*.yaml' -o -name '*.yml' ! -path './.github/*')" ]; then
+            echo "no-yaml=true" >> $GITHUB_OUTPUT
+          else
+            echo "no-yaml=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install yamllint
+        if: steps.check-yaml.outputs.no-yaml == 'false'
+        run: sudo apt-get install -y yamllint
+
+      - name: Run yamllint
+        if: steps.check-yaml.outputs.no-yaml == 'false'
+        run: |
+          YAML_FILES=$(find . -name '*.yaml' -o -name '*.yml' ! -path './.github/*')
+          echo "$YAML_FILES" | xargs yamllint
+
+  lint-ini:
+    name: Lint INI Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check for INI Files
+        id: check-ini
+        run: |
+          if [ -z "$(find . -name '*.ini')" ]; then
+            echo "no-ini=true" >> $GITHUB_OUTPUT
+          else
+            echo "no-ini=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install ini-linter
+        if: steps.check-ini.outputs.no-ini == 'false'
+        run: |
+          sudo apt-get update && sudo apt-get install -y python3-pip
+          pip3 install pyinilint
+
+      - name: Run ini-linter
+        if: steps.check-ini.outputs.no-ini == 'false'
+        run: pyinilint ./configs/**/*.ini
+
+  lint-json:
+    name: Lint JSON Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Check for JSON Files
+        id: check-json
+        run: |
+          if [ -z "$(find . -name '*.json')" ]; then
+            echo "no-json=true" >> $GITHUB_OUTPUT
+          else
+            echo "no-json=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run JSONLint
+        if: steps.check-json.outputs.no-json == 'false'
+        run: |
+          JSON_FILES=$(find . -name '*.json')
+          echo "$JSON_FILES" | xargs yarn jsonlint -q
