@@ -1,11 +1,7 @@
 import path from 'path'
-import { fileURLToPath } from 'url'
-import { createZip } from 'utils/zipUtils.js'
-import { getAllFiles } from 'utils/fileUtils.js'
+import { createZip } from './utils/zipUtils.js'
+import { getAllFiles } from './utils/fileUtils.js'
 import fs from 'fs'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 export default function buildConfigPlugin(options) {
   const { inputDir, outputDir, packName } = options
@@ -13,8 +9,15 @@ export default function buildConfigPlugin(options) {
   return {
     name: 'build-config-plugin',
     buildEnd() {
-      const absoluteInputDir = path.join(__dirname, inputDir)
-      const absoluteOutputDir = path.join(__dirname, outputDir)
+      const absoluteInputDir = path.resolve(inputDir)
+      const absoluteOutputDir = path.resolve(outputDir)
+
+      if (!fs.existsSync(absoluteInputDir)) {
+        console.warn(
+          `Ordner ${inputDir} existiert nicht und wird übersprungen.`
+        )
+        return
+      }
 
       fs.mkdirSync(absoluteOutputDir, { recursive: true })
 

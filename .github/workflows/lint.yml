@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -47,7 +47,7 @@ jobs:
       - name: Check for YAML Files
         id: check-yaml
         run: |
-          if [ -z "$(find . -name '*.yaml' -o -name '*.yml' ! -path './.github/*')" ]; then
+          if [ -z "$(find . \( -name '*.yaml' -o -name '*.yml' \) ! -path './.github/*')" ]; then
             echo "no-yaml=true" >> $GITHUB_OUTPUT
           else
             echo "no-yaml=false" >> $GITHUB_OUTPUT
@@ -60,7 +60,7 @@ jobs:
       - name: Run yamllint
         if: steps.check-yaml.outputs.no-yaml == 'false'
         run: |
-          YAML_FILES=$(find . -name '*.yaml' -o -name '*.yml' ! -path './.github/*')
+          YAML_FILES=$(find . \( -name '*.yaml' -o -name '*.yml' \) ! -path './.github/*')
           echo "$YAML_FILES" | xargs yamllint
 
   lint-ini:
@@ -81,13 +81,11 @@ jobs:
 
       - name: Install ini-linter
         if: steps.check-ini.outputs.no-ini == 'false'
-        run: |
-          sudo apt-get update && sudo apt-get install -y python3-pip
-          pip3 install pyinilint
+        run: pipx install pyinilint
 
       - name: Run ini-linter
         if: steps.check-ini.outputs.no-ini == 'false'
-        run: pyinilint ./configs/**/*.ini
+        run: find . -name '*.ini' -exec pyinilint {} +
 
   lint-json:
     name: Lint JSON Files
@@ -97,7 +95,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -107,7 +105,7 @@ jobs:
       - name: Check for JSON Files
         id: check-json
         run: |
-          if [ -z "$(find . -name '*.json')" ]; then
+          if [ -z "$(find . -name '*.json' ! -path './node_modules/*')" ]; then
             echo "no-json=true" >> $GITHUB_OUTPUT
           else
             echo "no-json=false" >> $GITHUB_OUTPUT
@@ -115,6 +113,5 @@ jobs:
 
       - name: Run JSONLint
         if: steps.check-json.outputs.no-json == 'false'
-        run: |
-          JSON_FILES=$(find . -name '*.json')
-          echo "$JSON_FILES" | xargs yarn jsonlint -q
+        # jsonlint only checks the first file argument, so lint one file per call
+        run: find . -name '*.json' ! -path './node_modules/*' -print0 | xargs -0 -n1 yarn -s jsonlint -q

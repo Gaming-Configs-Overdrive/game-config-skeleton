@@ -28,9 +28,11 @@ export default rollupConfig({
 ### Plugin Configuration
 The current configuration includes three main plugins:
 
-- **Mod Pack Plugin**: Packages mod files from `../mods` into `modpack.zip`
-- **Config Plugin**: Packages configuration files from `../config` into `config.zip`
+- **Mod Pack Plugin**: Packages mod files from `mods` into `modpack.zip`
+- **Config Plugin**: Packages configuration files from `configs` into `config.zip`
 - **Full Release Plugin**: Creates a comprehensive release package including configs, mods, and docs folders
+
+All directories are resolved relative to the repository root (the directory `yarn build` runs in). The folder structure inside each input directory is kept in the ZIP, `.gitkeep` files are left out, and a missing input directory is skipped with a warning.
 
 ## Running the Build
 To build the packages, run the following command:
@@ -47,7 +49,7 @@ dist/
 ├── modpack.zip
 ├── config.zip
 ├── fullrelease.zip
-└── [additional build artifacts]
+└── index.js  (output of the minimal Rollup entry src/index.js)
 ```
 
 ## Utilizing Helper Functions in Utility Classes
@@ -96,13 +98,16 @@ When building or modifying a Rollup plugin for this repository, the utility func
 ### `zipUtils.js`
 
 - **`createZip(files, outputZipPath)`**
-  - **Purpose:** Creates a ZIP archive from a list of files.
+  - **Purpose:** Creates a ZIP archive from a list of `{ fullPath, relativePath }` objects. `relativePath` becomes the entry path inside the ZIP (folders are kept); `.gitkeep` files are skipped.
   - **Usage:** Use this function to package configuration files for distribution.
   - **Example:**
     ```javascript
-    import { createZip } from './utils/zipUtils';
+    import { createZip } from './utils/zipUtils.js';
 
-    createZip(['file1.txt', 'file2.txt'], 'output.zip');
+    createZip(
+      [{ fullPath: 'configs/sub/file1.cfg', relativePath: 'sub/file1.cfg' }],
+      'output.zip'
+    );
     ```
 
 ### `fileUtils.js`
@@ -165,7 +170,7 @@ The Rollup configuration in this repository includes several plugins designed to
 - **Example:**
   ```javascript
   buildConfigPlugin({
-    inputDir: '../config',
+    inputDir: 'configs',
     outputDir: 'dist',
     packName: 'config.zip',
   });
@@ -183,7 +188,7 @@ The Rollup configuration in this repository includes several plugins designed to
 - **Example:**
   ```javascript
   buildModPackPlugin({
-    inputDir: '../mods',
+    inputDir: 'mods',
     outputDir: 'dist',
     packName: 'modpack.zip',
   });

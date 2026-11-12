@@ -1,6 +1,6 @@
-import buildConfigPlugin from './src/buildConfigPlugin'
-import buildModPackPlugin from './src/buildModPackPlugin'
-import buildFullReleasePlugin from './src/buildFullReleasePlugin'
+import buildConfigPlugin from './src/buildConfigPlugin.js'
+import buildModPackPlugin from './src/buildModPackPlugin.js'
+import buildFullReleasePlugin from './src/buildFullReleasePlugin.js'
 
 export default ({ input = 'src/index.js', outputDir = 'dist' } = {}) => ({
   input,
@@ -11,12 +11,12 @@ export default ({ input = 'src/index.js', outputDir = 'dist' } = {}) => ({
   },
   plugins: [
     buildModPackPlugin({
-      inputDir: '../mods',
+      inputDir: 'mods',
       outputDir: outputDir,
       packName: 'modpack.zip',
     }),
     buildConfigPlugin({
-      inputDir: '../config',
+      inputDir: 'configs',
       outputDir: outputDir,
       packName: 'config.zip',
     }),
