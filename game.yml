@@ -1,0 +1,7 @@
+# Game manifest, see docs/GAME_MANIFEST.md and schema/game.schema.json.
+# yaml-language-server: $schema=./schema/game.schema.json
+schema: 1
+id: example-game
+name: Example Game
+online: false
+files: []
