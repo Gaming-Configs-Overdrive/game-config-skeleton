@@ -1,78 +1,18 @@
-name: Build and Release
+name: Release
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+    paths: [CHANGELOG.md]
+  workflow_dispatch:
 
 jobs:
-  build-and-release:
-    if: github.repository != 'Gaming-Configs-Overdrive/game-config-skeleton' && !github.event.repository.is_template
+  release:
+    if: github.repository != 'Gaming-Configs-Overdrive/game-config-skeleton'
     permissions:
       contents: write
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: check CHANGELOG.md changed
-        id: changelog-check
-        run: |
-          # First release: no previous tag yet -> treat CHANGELOG.md as changed
-          if ! PREV_TAG=$(git describe --tags --abbrev=0 "${{ github.ref_name }}^" 2>/dev/null); then
-            echo "changed=true" >> $GITHUB_OUTPUT
-          elif git diff --name-only $PREV_TAG ${{ github.ref_name }} | grep -q "^CHANGELOG.md$"; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "changed=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Build with Rollup
-        run: yarn build
-
-      - name: Upload build artifacts
-        if: steps.changelog-check.outputs.changed == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: dist
-
-      - name: Extract new version from CHANGELOG
-        id: version
-        run: |
-          VERSION=$(grep -Eo "## \[[0-9]+\.[0-9]+\.[0-9]+\]" CHANGELOG.md | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+" | head -n 1)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Extract release notes from CHANGELOG
-        id: notes
-        run: |
-          VERSION=${{ steps.version.outputs.version }}
-          NOTES=$(awk -v ver="$VERSION" '
-            $0 ~ "## \\[" ver "\\]" {found=1; next}
-            found && /^## \[/ {exit}
-            found
-          ' CHANGELOG.md)
-          echo "notes<<EOF" >> $GITHUB_OUTPUT
-          echo "$NOTES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Create GitHub Release
-        if: steps.changelog-check.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ steps.version.outputs.version }}
-          NOTES: ${{ steps.notes.outputs.notes }}
-        run: |
-          gh release create "v$VERSION" dist/*.zip \
-            --target "${{ github.sha }}" \
-            --title "v$VERSION" \
-            --notes "$NOTES"
+      id-token: write
+      attestations: write
+    uses: Gaming-Configs-Overdrive/.github/.github/workflows/game-release.yml@v1
+    with:
+      installer-ref: v1
