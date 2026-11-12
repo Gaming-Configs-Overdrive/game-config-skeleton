@@ -10,7 +10,6 @@ const schemaPath = fileURLToPath(
 )
 const validateSchema = new Ajv2020({
   allErrors: true,
-  strictTypes: false,
 }).compile(JSON.parse(fs.readFileSync(schemaPath, 'utf8')))
 
 const isInside = (root, p) => {

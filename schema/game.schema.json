@@ -180,7 +180,10 @@
           "if": { "properties": { "distribute": { "const": "bundle" } } },
           "then": {
             "properties": {
-              "source": { "properties": { "type": { "const": "local" } } }
+              "source": {
+                "type": "object",
+                "properties": { "type": { "const": "local" } }
+              }
             }
           }
         }
