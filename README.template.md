@@ -1,56 +1,69 @@
-[![Build and Release](<INSERT_BADGE_URL>)](<INSERT_BADGE_LINK>)
-[![Lint](<INSERT_BADGE_URL>)](<INSERT_BADGE_LINK>)
-[![Publish README to GitHub Pages](<INSERT_BADGE_URL>)](<INSERT_BADGE_LINK>)
+[![Release](INSERT_BADGE_URL)](INSERT_BADGE_LINK)
+[![Lint](INSERT_BADGE_URL)](INSERT_BADGE_LINK)
+[![Pages](INSERT_BADGE_URL)](INSERT_BADGE_LINK)
 
 # <INSERT_PROJECT_NAME>
-> [Deutsche Readme Version hier](./README.de)
+
+> [Deutsche Readme Version hier](./README.de.md)
 >
-> [Release Changelog](./CHANGELOG)
+> [Release Changelog](./CHANGELOG.md)
 
 <INSERT_PROJECT_DESCRIPTION>
 
 ## What is this about?
 
-- **.cfg:**  
-  <INSERT_AUTOEXEC_DESCRIPTION>
+- **<INSERT_FILE_NAME>:**  
+  <INSERT_FILE_DESCRIPTION>
 
-## Installing the Configurations
+Variants: <INSERT_VARIANTS> (see `variants` in [game.yml](./game.yml)).
 
-1. **Choosing a Package:**  
-   Download one of the prepared packages from the [Releases](<INSERT_RELEASE_LINK>).
+## Installing (recommended)
 
-2. **Installing .cfg:**  
-   - Extract the downloaded package.
-   - Move the `autoexec.cfg` file into the game's `cfg` folder.
-     For Steam installations, this is usually:
-     `<INSERT_PATH>`
+1. Download `fullrelease.zip` from the [Releases](INSERT_RELEASE_LINK) and extract it.
+2. Close the game.
+3. Run `install.bat` (Windows) or `install.sh` (Linux/Steam Deck), or use the installer directly:
+   ```bash
+   gco-install install --variant <INSERT_VARIANT> --dry-run
+   gco-install install --variant <INSERT_VARIANT>
+   ```
+   The installer detects the game (Steam/Epic/GOG, Proton), shows a plan and backs up every file it touches.
+4. Undo everything with `gco-install restore`.
 
-3. **Game Launch Parameters:**  
-   - In your Steam Library, right-click the game and select "Properties".
-   - Go to the "General" tab.
-   - Add the following in the Launch Options field:  
-     `<INSERT_LAUNCH_OPTIONS>`
+## Installing manually
 
-#### **Additional Launch Parameters:**
+1. Download `config.zip` (configs) and, if needed, `modpack.zip` (mods, relative to the game folder).
+2. Copy the config files to:
+   `<INSERT_PATH>`
+3. Extract `modpack.zip` into the game folder.
+4. Download the mods listed as `link` in `MODS.md` from their source.
 
-| Command | Description |
-| --- | --- |
+Verify downloads with `sha256sum -c SHA256SUMS`.
+
+## Launch Options
+
+Add the following in the game's launch options:
+`<INSERT_LAUNCH_OPTIONS>`
+
+| Command            | Description          |
+| ------------------ | -------------------- |
 | `<INSERT_COMMAND>` | <INSERT_DESCRIPTION> |
 
-## Additional Tips
+## Mods
 
-- You can switch between different packages by choosing another `.cfg` and `.txt` from the release packages and placing them as described above.
-- If you want to apply changes to the `.cfg` without restarting the game, open the game console (if enabled via launch options) and type `exec .cfg`.
-- If you experience performance issues or poor visuals, try simpler variants first. If your PC is more powerful, move on to higher quality packages.
-
-## Common Keybinds in autoexec
-
-| Key | Command | Description |
-| --- | --- | --- |
-| `<INSERT_KEY>` | `<INSERT_COMMAND>` | <INSERT_DESCRIPTION> |
+See `MODS.md` in the release for versions, sources and licenses.
 
 ## General Advice
 
-- Experiment with various combinations to find the optimal balance between visual quality and performance.
-- If you have older or weaker hardware, start with performance-focused variants.
-- For high-resolution monitors or powerful hardware, go for the higher-quality variants to enhance your gaming experience.
+- If you experience performance issues or poor visuals, try simpler variants first. If your PC is more powerful, move on to higher quality variants.
+- Game updates can reset config files; run the installer again after a patch.
+
+## Development
+
+```bash
+npm install
+npm run validate
+npm run build
+npm test
+```
+
+Manifest reference: [docs/GAME_MANIFEST.md](./docs/GAME_MANIFEST.md).

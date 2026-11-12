@@ -8,12 +8,28 @@ This file is based on the Semver-Model ('Added', 'Changed', 'Removed')
 
 ## [Unreleased]
 
-### Fixed
+## [2.0.0] - 2026-11-12
 
-- build: `yarn build` runs again (missing `src/index.js` entry, bare/extensionless imports, paths resolved from `src/` instead of the repo root, wrong `../config` input dir)
-- build: ZIPs keep the folder structure, contain the real file contents and exclude `.gitkeep`; missing input folders are skipped with a warning
-- ci(release): upload ZIPs from `dist/`, first release works without a previous tag, archived `actions/create-release` replaced by `gh release create`, `actions/setup-node@v4`
-- ci(lint): fix `find` precedence for YAML, lint all `.ini` files, skip `node_modules` and lint every JSON file
+### Changed
+
+- build: replace Rollup and Yarn with a plain Node 24 build (`npm run build`, `scripts/build.mjs`)
+- build: `dist/` is cleaned before each build; ZIPs use forward slashes and skip `.gitkeep`
+- ci: workflows are thin callers of the reusable workflows in `Gaming-Configs-Overdrive/.github` (`@v1`)
+- ci: `publish-readme.yml` renamed to `pages.yml`; releases only run when `CHANGELOG.md` changes or manually
+- docs: README (EN/DE) and `README.template.md` describe npm, `game.yml` and the installer `gco-install`
+
+### Added
+
+- `game.yml` manifest validated against `schema/game.schema.json` plus build rules (`npm run validate`)
+- `dist/MODS.md` (mod list with sources and licenses) and `dist/SHA256SUMS`
+- `docs/ARCHITECTURE.md` (shared contract) and `docs/GAME_MANIFEST.md` (manifest reference with engine examples)
+- tests with `node:test` (`npm test`)
+- `template-sync.yml`, `.templatesyncignore`, `renovate.json`, `_config.yml`, `.nvmrc`, `.prettierignore`
+
+### Removed
+
+- Rollup config, build plugins, `src/` utils and `yarn.lock`
+- `docs/ROLLUP_CONFIGURATION.md`
 
 ## [1.0.0] - hello Champion
 
