@@ -1,0 +1,25 @@
+schema: 1
+id: fixture-game
+name: Fixture Game
+online: true
+variants: [low, high]
+files:
+  - src: configs/{variant}/Engine.ini
+    target: '{LOCALAPPDATA}/Fixture/Saved/Config/{UE_PLATFORM}/Engine.ini'
+    format: ini
+    strategy: merge
+mods:
+  layout: [r6/scripts]
+  items:
+    - id: my-mod
+      name: My Mod
+      version: 1.0.0
+      source: { type: local }
+      license: MIT
+      distribute: bundle
+    - id: other-mod
+      name: Other | Mod
+      source: { type: github, repo: example/other-mod }
+      license: GPL-3.0
+      distribute: link
+      requires: [my-mod]

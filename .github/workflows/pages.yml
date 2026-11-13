@@ -1,0 +1,13 @@
+name: Pages
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  pages:
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: Gaming-Configs-Overdrive/.github/.github/workflows/game-pages.yml@v1

@@ -1,22 +1,26 @@
 {
   "name": "game-config-skeleton",
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "private": true,
   "description": "A skeleton repository for game configs and modding packs.",
-  "main": "index.js",
   "repository": "git@github.com:Gaming-Configs-Overdrive/game-config-skeleton.git",
   "author": "pwnyprod <info@it-jh.de>",
   "license": "MIT",
   "type": "module",
-  "scripts": {
-    "build": "rollup -c",
-    "format": "prettier --write \"./**/*.js\""
+  "engines": {
+    "node": ">=24"
   },
-  "dependencies": {
-    "adm-zip": "^0.5.16",
-    "jsonlint": "^1.6.3",
-    "rollup": "^4.28.1"
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "validate": "node scripts/validate.mjs",
+    "test": "node --test",
+    "format": "prettier --write \"**/*.{js,mjs,json,md,yml}\"",
+    "format:check": "prettier --check \"**/*.{js,mjs,json,md,yml}\""
   },
   "devDependencies": {
-    "prettier": "^3.4.2"
+    "adm-zip": "^0.6.1",
+    "ajv": "^8.20.0",
+    "prettier": "^3.10.1",
+    "yaml": "^2.9.1"
   }
 }

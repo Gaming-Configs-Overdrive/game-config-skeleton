@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Gaming-Configs-Overdrive/game-config-skeleton/schema/game.schema.json",
+  "title": "Gaming-Configs-Overdrive game manifest (game.yml)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "name", "online", "files"],
+  "properties": {
+    "schema": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "name": { "type": "string", "minLength": 1 },
+    "online": {
+      "type": "boolean",
+      "description": "Game has online play / anti-cheat. true => build fails on ban-reported files and injector mods."
+    },
+    "gameVersion": {
+      "type": "string",
+      "description": "Tested game version range, free text, e.g. \">=2.3 <2.4\"."
+    },
+    "stores": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "steam": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["appid"],
+          "properties": { "appid": { "type": "integer", "minimum": 1 } }
+        },
+        "epic": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["appName"],
+          "properties": {
+            "appName": { "type": "string" },
+            "catalogItemId": { "type": "string" }
+          }
+        },
+        "gog": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id"],
+          "properties": { "id": { "type": "string" } }
+        },
+        "xbox": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["folder"],
+          "properties": { "folder": { "type": "string" } }
+        }
+      }
+    },
+    "detect": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "exe": {
+          "type": "string",
+          "description": "Path relative to {GAME_DIR} that must exist to accept a detected install."
+        }
+      }
+    },
+    "processes": {
+      "type": "array",
+      "description": "Process names that must not be running during install.",
+      "items": { "type": "string" }
+    },
+    "variants": {
+      "type": "array",
+      "description": "Selectable variants. First entry is the default. Use {variant} in file src.",
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "files": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/file" }
+    },
+    "mods": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["layout", "items"],
+      "properties": {
+        "layout": {
+          "type": "array",
+          "description": "Allowed install roots relative to {GAME_DIR}. Every bundled file under mods/<id>/ must start with one of them.",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/mod" } }
+      }
+    },
+    "notes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "launchOptions": { "type": "string" },
+        "linux": { "type": "string" },
+        "general": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["src", "target", "format", "strategy"],
+      "properties": {
+        "src": {
+          "type": "string",
+          "description": "Payload path relative to the manifest directory. May contain {variant}."
+        },
+        "target": {
+          "type": "string",
+          "description": "Destination with variables: {GAME_DIR} {LOCALAPPDATA} {APPDATA} {LOCALLOW} {DOCUMENTS} {SAVED_GAMES} {USERPROFILE} {STEAM_USERDATA} {UE_PLATFORM}. For format=registry: HKCU/Software/<Company>/<Product>."
+        },
+        "format": {
+          "enum": ["ini", "json", "kv", "xml", "registry", "opaque"]
+        },
+        "strategy": { "enum": ["merge", "replace", "create-if-missing"] },
+        "encoding": {
+          "enum": ["auto", "utf8", "utf8-bom", "utf16le-bom"],
+          "default": "auto"
+        },
+        "readOnly": { "type": "boolean", "default": false },
+        "survivesPatch": { "type": "boolean", "default": true },
+        "cloudSynced": { "type": "boolean", "default": false },
+        "onlineRisk": {
+          "enum": ["none", "tos", "ban-reported"],
+          "default": "none"
+        },
+        "variants": {
+          "type": "array",
+          "description": "Only install for these variants (default: all).",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "mod": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "source", "license", "distribute"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "source": {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": { "enum": ["local", "github", "nexus", "url"] },
+            "repo": { "type": "string" },
+            "asset": { "type": "string" },
+            "modId": { "type": "integer" },
+            "fileId": { "type": "integer" },
+            "url": { "type": "string" }
+          }
+        },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "license": { "type": "string" },
+        "distribute": {
+          "enum": ["link", "bundle"],
+          "description": "bundle only for own mods or explicit redistribution permission; files live in mods/<id>/ relative to the game root."
+        },
+        "requires": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Other mod ids, optionally with version: tweakxl@>=1.10"
+        },
+        "risk": {
+          "enum": ["none", "injector"],
+          "default": "none",
+          "description": "injector = DLL proxy / ReShade addon / upscaler swap; forbidden when online=true."
+        },
+        "optional": { "type": "boolean", "default": false },
+        "notes": { "type": "string" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "distribute": { "const": "bundle" } } },
+          "then": {
+            "properties": {
+              "source": {
+                "type": "object",
+                "properties": { "type": { "const": "local" } }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

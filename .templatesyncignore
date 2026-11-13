@@ -1,0 +1,11 @@
+configs/**
+mods/**
+docs/**
+!docs/ARCHITECTURE.md
+!docs/GAME_MANIFEST.md
+game.yml
+CHANGELOG.md
+README*.md
+package.json
+package-lock.json
+dist/**

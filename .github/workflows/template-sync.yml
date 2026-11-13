@@ -1,0 +1,15 @@
+name: Template sync
+
+on:
+  schedule:
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    if: github.repository != 'Gaming-Configs-Overdrive/game-config-skeleton'
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: Gaming-Configs-Overdrive/.github/.github/workflows/game-template-sync.yml@v1
+    secrets: inherit
